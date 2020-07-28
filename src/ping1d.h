@@ -13,8 +13,10 @@
 
 #include <Arduino.h>
 #include <Stream.h>
-#include "pingmessage.h"
-#include "ping_parser.h"
+#include <ping-message.h>
+#include <ping-message-common.h>
+#include <ping-message-ping1d.h>
+#include <ping-parser.h>
 
 class Ping1D
 {
@@ -42,28 +44,28 @@ public:
     bool initialize(uint16_t ping_interval_ms = 50);
 
     /**
-     *  @brief Request a PingMessage from the device
+     *  @brief Request a ping_message from the device
      *
      *  @param id: The message ID to request
-     *  @param timeout_ms: The timeout period to wait for the requested PingMessage to be received
+     *  @param timeout_ms: The timeout period to wait for the requested ping_message to be received
      *
-     *  @return The PingMessage that was requested
+     *  @return The ping_message that was requested
      *  @return null if the device did not reply with the requested message before the timeout period expired
      *
      *  @par ex.
      *  @code
-     *  ping_msg_ping1D_voltage_5 msg(*pd.request(Ping1DNamespace::Voltage_5));
+     *  ping_msg_ping1D_voltage_5 msg(*pd.request(Ping1dId::Voltage_5));
      *  @endcode
      */
-    PingMessage* request(enum Ping1DNamespace::msg_ping1D_id id, uint16_t timeout_ms = 500);
+    ping_message* request(uint16_t id, uint16_t timeout_ms = 500);
 
 
     /**
-     *  @brief Request a PingMessage of type T from the device
+     *  @brief Request a ping_message of type T from the device
      *
-     *  @param timeout_ms: The timeout period to wait for the requested PingMessage to be received
+     *  @param timeout_ms: The timeout period to wait for the requested ping_message to be received
      *
-     *  @return The PingMessage that was requested
+     *  @return The ping_message that was requested
      *  @return null if the device did not reply with the requested message before the timeout period expired
      *
      *  @par ex.
@@ -80,7 +82,7 @@ public:
      *  @return true if the distance and confidence have been updated successfully
      */
     bool update() {
-        return request(Ping1DNamespace::Distance_simple);
+        return request(Ping1dId::DISTANCE_SIMPLE);
     }
 
     /**
@@ -301,7 +303,7 @@ private:
     // Device I/O
     Stream& _stream;
 
-    // For decoding PingMessages from the device
+    // For decoding ping_messages from the device
     PingParser _parser;
 
     // Device type. 0: Unknown; 1: Ping Echosounder; 2: Ping360
@@ -385,16 +387,16 @@ private:
 
 
     /**
-     *  @brief Read in data from device, return a PingMessage if available.
+     *  @brief Read in data from device, return a ping_message if available.
      *  Data will be read in from device until there is no data left in the RX buffer,
-     *  or a valid PingMessage is successfully decoded.
+     *  or a valid ping_message is successfully decoded.
      *  Note that there may still be data available in the RX buffer for decoding when
-     *  this function returns a PingMessage.
+     *  this function returns a ping_message.
      *
-     *  @return: The next PingMessage from the device
-     *  @return: null if the RX buffer is empty and no PingMessage has been decoded
+     *  @return: The next ping_message from the device
+     *  @return: null if the RX buffer is empty and no ping_message has been decoded
      */
-    PingMessage* read();
+    ping_message* read();
 
     /**
      *  @brief Write data to device
@@ -410,18 +412,18 @@ private:
      *  @brief Wait for receipt of a message with a particular message id from device
      *
      *  @param id: The message id to wait for
-     *  @param timeout_ms: The timeout period to wait for a matching PingMessage to be received
+     *  @param timeout_ms: The timeout period to wait for a matching ping_message to be received
      *
-     *  @return The PingMessage received with matching id
-     *  @return null if the timeout expires and no PingMessage was received with a matching id
+     *  @return The ping_message received with matching id
+     *  @return null if the timeout expires and no ping_message was received with a matching id
      */
-    PingMessage* waitMessage(enum Ping1DNamespace::msg_ping1D_id id, uint16_t timeout_ms = 500);
+    ping_message* waitMessage(uint16_t id, uint16_t timeout_ms = 500);
 
     /**
      *  @brief Handle an incoming message from the device. Internal values are updated according to the device data.
      *
      *  @param pmsg: The message received from the device
      */
-    void handleMessage(PingMessage* pmsg);
+    void handleMessage(ping_message* pmsg);
 
 };
